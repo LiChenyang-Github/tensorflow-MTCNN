@@ -24,7 +24,12 @@ class FcnDetector:
             image_reshape=tf.reshape(self.image_op,[1,self.height_op,self.width_op,3])
             #预测值
             self.cls_prob,self.bbox_pred,_=net_factory(image_reshape,training=False)
-            self.sess=tf.Session()
+
+            ###
+            config = tf.ConfigProto()
+            config.gpu_options.allow_growth = True
+            
+            self.sess=tf.Session(config=config)
             #重载模型
             saver=tf.train.Saver()
             model_file=tf.train.latest_checkpoint(model_path)

@@ -17,8 +17,14 @@ class Detector:
         graph=tf.Graph()
         with graph.as_default():
             self.image_op=tf.placeholder(tf.float32,[None,data_size,data_size,3])
-            self.cls_prob, self.bbox_pred, self.landmark_pred = net_factory(self.image_op, training=False)
-            self.sess = tf.Session()
+            # self.cls_prob, self.bbox_pred, self.landmark_pred = net_factory(self.image_op, training=False)
+            self.cls_prob, self.bbox_pred, _ = net_factory(self.image_op, training=False)
+
+            ###
+            config = tf.ConfigProto()
+            config.gpu_options.allow_growth = True
+
+            self.sess = tf.Session(config=config)
             #重载模型
             saver=tf.train.Saver()
             model_file=tf.train.latest_checkpoint(model_path)
@@ -53,12 +59,16 @@ class Detector:
                     keep_inds=np.concatenate((keep_inds,keep_inds[:gap]))
                 data=data[keep_inds]
                 real_size=m
-            cls_prob,bbox_pred,landmark_pred=self.sess.run([self.cls_prob, self.bbox_pred,self.landmark_pred],
+            # cls_prob,bbox_pred,landmark_pred=self.sess.run([self.cls_prob, self.bbox_pred,self.landmark_pred],
+            #                                               feed_dict={self.image_op: data})
+            cls_prob,bbox_pred=self.sess.run([self.cls_prob, self.bbox_pred],
                                                           feed_dict={self.image_op: data})
-            
+
             cls_prob_list.append(cls_prob[:real_size])
             bbox_pred_list.append(bbox_pred[:real_size])
-            landmark_pred_list.append(landmark_pred[:real_size])
+            # landmark_pred_list.append(landmark_pred[:real_size])
         
-        return np.concatenate(cls_prob_list, axis=0), np.concatenate(bbox_pred_list, axis=0), np.concatenate(landmark_pred_list, axis=0)
+        # return np.concatenate(cls_prob_list, axis=0), np.concatenate(bbox_pred_list, axis=0), np.concatenate(landmark_pred_list, axis=0)
+        return np.concatenate(cls_prob_list, axis=0), np.concatenate(bbox_pred_list, axis=0), None
+
 
