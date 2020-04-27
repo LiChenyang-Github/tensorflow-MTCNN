@@ -36,6 +36,7 @@ def main(args):
     filename=args.filename
     base_dir=args.base_dir
     net_name=args.net_name
+    add_img_suffix=args.add_img_suffix
 
     # pdb.set_trace()
 
@@ -112,7 +113,7 @@ def main(args):
     # pdb.set_trace()
 
 
-    data=read_annotation_xiao(base_dir, filename, img_num=None)
+    data=read_annotation_xiao(base_dir, filename, img_num=None, add_img_suffix=add_img_suffix)
 
 
     mtcnn_detector=MtcnnDetector(detectors,min_face_size=min_face_size,
@@ -254,6 +255,10 @@ def parse_arguments(argv):
 
     parser.add_argument('--net_name', nargs='+', default=None,
                         help='The name for the net.')
+
+    parser.add_argument('--add_img_suffix', action='store_true', default=False, 
+                        help='The input size for specific net')
+
 
     return parser.parse_args(argv)
 

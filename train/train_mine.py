@@ -5,7 +5,8 @@
 
 
 from model import P_Net,R_Net,O_Net, P_Net_9, P_Net_8, \
-    R_Net_conv3, O_Net_conv3, P_Net_v1, R_Net_v1, O_Net_v1, R_Net_fcn, R_Net_fcn_v1, O_Net_fcn_v1
+    R_Net_conv3, O_Net_conv3, P_Net_v1, R_Net_v1, O_Net_v1, R_Net_fcn, R_Net_fcn_v1, O_Net_fcn_v1, \
+    P_Net_aspect_24_12
 import argparse
 import os
 import sys
@@ -23,6 +24,7 @@ import os.path as osp
 
 def main(args):
     size=args.input_size
+    aspect=args.aspect
 
     ###
     if not args.use_multi_tfrecords:
@@ -126,7 +128,7 @@ def main(args):
     # train(net_factory,prefix,end_epoch,base_dir,display,lr)
     if not args.use_multi_tfrecords:
         train(net_factory,prefix,end_epoch,base_dir,display,lr,args.suffix,pretrained=FLAGS.pretrained,\
-            resume=FLAGS.resume,size=size,net=net,exclude_vars=FLAGS.exclude_vars)
+            resume=FLAGS.resume,size=size,net=net,exclude_vars=FLAGS.exclude_vars,aspect=aspect)
     else:
         train_multi_tfrecords(net_factory,prefix,end_epoch,base_dir,display,lr,\
             FLAGS.suffix_list,FLAGS.batch_ratio,pretrained=FLAGS.pretrained, \
@@ -152,6 +154,9 @@ def parse_arguments(argv):
 
     parser.add_argument('--net_name', type=str, default=None,
                         help='The name for the net.')
+
+    parser.add_argument('--aspect', nargs='+', type=int, default=None,
+                        help='Specify the (height, width) when the input is not square.')
 
     return parser.parse_args(argv)
 

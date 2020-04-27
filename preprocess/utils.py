@@ -11,6 +11,7 @@ import os.path as osp
 import numpy.random as npr
 # In[2]:
 
+from glob import glob
 from collections import defaultdict
 
 npr.seed(333)
@@ -126,7 +127,7 @@ def read_annotation(base_dir, label_path):
     data['bboxes'] = bboxes
     return data
 
-def read_annotation_xiao(base_dir, label_path, img_num=None):
+def read_annotation_xiao(base_dir, label_path, img_num=None, add_img_suffix=False):
     '''读取西奥数据的image，box'''
     data = dict()
     images = []
@@ -147,7 +148,11 @@ def read_annotation_xiao(base_dir, label_path, img_num=None):
 
     for line in lines:
         conts = line.strip().split()
-        imagepath = osp.join(base_dir, conts[0])
+        if not add_img_suffix:
+            imagepath = osp.join(base_dir, conts[0])
+        else:
+            imagepath = glob(osp.join(base_dir, conts[0]+'.*'))[0]
+            # pdb.set_trace()
 
         one_image_bboxes = np.array([float(x) for x in conts[1:]]).reshape(-1, 4).tolist()
 

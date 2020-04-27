@@ -6,7 +6,7 @@
 
 
 import sys
-sys.path.append('../preprocess/')
+sys.path.insert(0, '../preprocess/')
 from utils import *
 import numpy as np
 import argparse
@@ -15,8 +15,9 @@ import pickle
 import cv2
 from tqdm import tqdm
 from loader import TestLoader
-sys.path.append('../')
+sys.path.insert(0, '../')
 from train.model import P_Net,R_Net,O_Net,P_Net_v1,R_Net_v1,R_Net_fcn,R_Net_fcn_v1
+from train.model import P_Net_org,R_Net_org
 import train.config_cal_recall as config
 from detection.detector import Detector
 from detection.fcn_detector import FcnDetector
@@ -39,6 +40,7 @@ def main(args):
     iou_threds=args.iou_threds
     thred_stride=args.thred_stride
     img_num=args.img_num
+    add_img_suffix=args.add_img_suffix
 
     # pdb.set_trace()
 
@@ -94,7 +96,8 @@ def main(args):
 
 
 
-    data=read_annotation_xiao(base_dir, filename, img_num=img_num)
+    data=read_annotation_xiao(base_dir, filename, img_num=img_num, add_img_suffix=add_img_suffix)
+
 
     # pdb.set_trace()
 
@@ -149,11 +152,12 @@ def main(args):
         save_det_file, \
         thresh[0] if size in [12] else thresh[1], \
         thred_stride, \
-        iou_threds \
+        iou_threds, \
+        img_num
         )
 
 
-def cal_recall(data, save_path, save_det_file, thresh_min, thresh_stride, iou_threds):
+def cal_recall(data, save_path, save_det_file, thresh_min, thresh_stride, iou_threds, img_num=None):
 
     im_idx_list = data['images']
     gt_boxes_list = data['bboxes']
@@ -166,7 +170,11 @@ def cal_recall(data, save_path, save_det_file, thresh_min, thresh_stride, iou_th
 
     # pdb.set_trace()
 
-    res_txt = osp.join(save_path, 'res.txt')
+    if img_num is None:
+        res_txt = osp.join(save_path, 'res.txt')
+    else:
+        res_txt = osp.join(save_path, '{}-imgs_res.txt'.format(img_num))
+
     with open(res_txt, 'w') as f:
 
         for iou_thred in iou_threds:    # Loop for iou threds
@@ -204,7 +212,6 @@ def cal_recall_core(det_list, gt_list, score_thred, iou_thred):
         det_num_cur = len(det_cur)
         gt_num_cur = len(gt_cur)
         gt_num += gt_num_cur
-
         
 
         # pdb.set_trace()
@@ -260,13 +267,16 @@ def parse_arguments(argv):
     parser.add_argument('--net_name', nargs='+', default=None,
                         help='The name for the net.')
 
-    parser.add_argument('--iou_threds', nargs='+', default=[0.65, 0.4],
+    parser.add_argument('--iou_threds', nargs='+', default=[0.65, 0.5, 0.4],
                         help='The iou threshold for recall calculation.')
 
     parser.add_argument('--thred_stride', type=float, default=0.1, 
                         help='The stride of scores thresh.')
 
     parser.add_argument('--img_num', type=int, default=None, 
+                        help='The input size for specific net')
+
+    parser.add_argument('--add_img_suffix', action='store_true', default=False, 
                         help='The input size for specific net')
 
     return parser.parse_args(argv)

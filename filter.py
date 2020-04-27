@@ -1,3 +1,4 @@
+
 import sys
 import cv2
 import pdb
@@ -18,9 +19,12 @@ from collections import defaultdict, Counter
 import xml.etree.ElementTree as ET
 import time
 
+from math import *
+from PIL import Image
 
 
-def gen_origin_train_val_txt_xiao_6_scenes():
+
+def gen_origin_train_val_txt_multi_scenes():
     """
         generate original train/val txt for xiao 6 scenes.
     """
@@ -160,15 +164,20 @@ def gen_origin_train_val_txt_xiao_6_scenes():
             f_val_upperbody.write(line)
 
 
-def gen_origin_txt_new_platform():
+def gen_origin_train_val_txt_one_scene():
     """
         将蜂联的标注文件转换成txt格式
     """
+
+    upperBody_annotation_4_82_flag = True
+
 
 
     # anno_file_list = ['/disk5/lichenyang/Datasets_backup/fenglian/W9Frap.json', ]
     # image_folder_list = ['/disk5/lichenyang/Datasets_backup/fenglian/W9Frap', ]
 
+    anno_file_list = ['/home/LiChenyang/Datasets/xi_ao/upperBody_annotation_4_82.json', ]
+    image_folder_list = ['/home/LiChenyang/Datasets/xi_ao/upperBody_annotation_4_82', ]
 
     train_all_images = []
     train_all_annos = []
@@ -178,7 +187,7 @@ def gen_origin_txt_new_platform():
     
     for i in range(len(anno_file_list)):
         train_images, val_images, train_annos, val_annos = aic_format_to_image_based_anno(anno_file_list[i], \
-            image_folder_list[i], new_platform=True, val_ratio=0.2)
+            image_folder_list[i], new_platform=False, val_ratio=0.05)
         # print(train_annos)
         train_all_images.extend(train_images)
         train_all_annos.extend(train_annos)
@@ -191,11 +200,14 @@ def gen_origin_txt_new_platform():
 
     # pdb.set_trace()
 
-    train_face_txt = "./data_mine/fenglian/fenglian-1_head_train.txt"
-    val_face_txt = "./data_mine/fenglian/fenglian-1_head_val.txt"
-    train_upperbody_txt = "./data_mine/fenglian/fenglian-1_upperbody_train.txt"
-    val_upperbody_txt = "./data_mine/fenglian/fenglian-1_upperbody_val.txt"
-
+    # train_face_txt = "./data_mine/fenglian/fenglian-1_head_train.txt"
+    # val_face_txt = "./data_mine/fenglian/fenglian-1_head_val.txt"
+    # train_upperbody_txt = "./data_mine/fenglian/fenglian-1_upperbody_train.txt"
+    # val_upperbody_txt = "./data_mine/fenglian/fenglian-1_upperbody_val.txt"
+    train_face_txt = "./data_mine/upperBody_annotation_4_82/upperBody_annotation_4_82_head_train.txt"
+    val_face_txt = "./data_mine/upperBody_annotation_4_82/upperBody_annotation_4_82_head_val.txt"
+    train_upperbody_txt = "./data_mine/upperBody_annotation_4_82/upperBody_annotation_4_82_upperbody_train.txt"
+    val_upperbody_txt = "./data_mine/upperBody_annotation_4_82/upperBody_annotation_4_82_upperbody_val.txt"
 
     f_train_face = open(train_face_txt, 'w')
     f_val_face = open(val_face_txt, 'w')
@@ -212,12 +224,18 @@ def gen_origin_txt_new_platform():
 
         img_dir = osp.join(train_all_images[i]['folder'], train_all_images[i]['file_name'])
 
+        if upperBody_annotation_4_82_flag:
+            img_dir = img_dir.replace('!', '%21')   ### for upperBody_annotation_4_82
+
         ### 过滤掉不存在的图片
         if not osp.exists(img_dir):
             continue
 
 
-        relative_path = osp.basename(train_all_images[i]['folder']) + '/' + train_all_images[i]['file_name']
+        if upperBody_annotation_4_82_flag:
+            relative_path = osp.basename(train_all_images[i]['folder']) + '/' + train_all_images[i]['file_name'].replace('!', '%21')
+        else:
+            relative_path = osp.basename(train_all_images[i]['folder']) + '/' + train_all_images[i]['file_name']
 
         # pdb.set_trace()
 
@@ -289,17 +307,18 @@ def gen_aux_train_txt():
     """
 
     anno_file_list = [
-                    '/disk3/hjy/work/data/aic_upper_head/gym_8.json',
-                    '/disk3/hjy/work/data/aic_upper_head/gym_12.json',
-                    '/disk3/hjy/work/data/aic_upper_head/subway.json',
+                    # '/disk3/hjy/work/data/aic_upper_head/gym_8.json',
+                    # '/disk3/hjy/work/data/aic_upper_head/gym_12.json',
+                    # '/disk3/hjy/work/data/aic_upper_head/subway.json',
                     # '/disk5/lichenyang/Datasets_backup/fenglian/IUG3Ln.json',
+                    
                     ]
 
     image_folder_list = [
-                    '/disk3/hjy/work/data/aic_upper_head/gym_8',
-                    '/disk3/hjy/work/data/aic_upper_head/gym_12',
-                    '/disk3/hjy/work/data/aic_upper_head/subway',
-                    # '/disk5/lichenyang/Datasets_backup/fenglian/IUG3Ln'
+                    # '/disk3/hjy/work/data/aic_upper_head/gym_8',
+                    # '/disk3/hjy/work/data/aic_upper_head/gym_12',
+                    # '/disk3/hjy/work/data/aic_upper_head/subway',
+                    # '/disk5/lichenyang/Datasets_backup/fenglian/IUG3Ln', 
                     ]
 
 
@@ -326,9 +345,10 @@ def gen_aux_train_txt():
 
     # pdb.set_trace()
 
-    train_face_txt = "./data_mine/auxiliary/xiao_gym_subway_head.txt"
+    # train_face_txt = "./data_mine/auxiliary/xiao_gym_subway_head.txt"
     # train_face_txt = "./data_mine/fenglian/fenglian-2_head.txt"
-    train_upperbody_txt = "./data_mine/auxiliary/xiao_gym_subway_upperbody.txt"
+
+    # train_upperbody_txt = "./data_mine/auxiliary/xiao_gym_subway_upperbody.txt"
     # train_upperbody_txt = "./data_mine/fenglian/fenglian-2_upperbody.txt"
 
     f_train_face = open(train_face_txt, 'w')
@@ -429,10 +449,14 @@ def statistic_label_file():
         统计从标注平台下载的文件的相关信息。
     """
 
+    anno_file_list = ['D:/Dataset/xi_ao/upperBody_annotation_4_82.json', ]
+    image_folder_list = ['E:/Datasets/xiao_head_upperbody/upperBody_annotation_4_82', ]
 
-    anno_file_list = ['/disk3/hjy/work/data/aic_upper_head/upperBody_annotation_4.json', ]
-    image_folder_list = ['/disk3/hjy/work/data/aic_upper_head/upperBody_annotation_4', ]
+    # anno_file_list = ['D:/Dataset/xi_ao/upperBody_annotation_4.json', ]
+    # image_folder_list = ['E:/Datasets/xiao_head_upperbody/upperBody_annotation_4', ]
 
+    # anno_file_list = ['E:/Datasets/fenglian_head_upperbody/W9Frap.json', ]
+    # image_folder_list = ['E:/Datasets/fenglian_head_upperbody/W9Frap', ]
 
     train_all_images = []
     train_all_annos = []
@@ -473,6 +497,7 @@ def statistic_label_file():
     head_bbox_num = 0
     upperbody_bbox_num = 0
     img_not_exist_num = 0
+    imgs_not_exist = []
 
 
 
@@ -484,9 +509,12 @@ def statistic_label_file():
 
         img_dir = osp.join(train_all_images[i]['folder'], train_all_images[i]['file_name'])
 
+        img_dir = img_dir.replace('!', '%21')
+
         ### 过滤掉不存在的图片
         if not osp.exists(img_dir):
             img_not_exist_num += 1
+            imgs_not_exist.append(train_all_images[i]['file_name'])
             continue
 
 
@@ -513,6 +541,8 @@ def statistic_label_file():
 
     print("img_num: {}. img_not_exist_num: {}. head bbox num: {}. upperbody bbox num {}.".format(
         valid_img_num, img_not_exist_num, head_bbox_num, upperbody_bbox_num))
+
+    # print(imgs_not_exist[:10])
 
 
 
@@ -564,8 +594,22 @@ def aic_format_to_image_based_anno(customer_annos_path, customer_image_folder, \
     categories_based_images = {}
     image_based_annos = {}
 
-    with open(customer_annos_path, 'r') as json_file:
-        customer_org_annos =json.load(json_file)
+    with open(customer_annos_path, 'r', encoding='UTF-8') as json_file:
+
+        # lines = json_file.readlines()
+
+        # print(lines[0])
+
+        # configstr = json_file.read().replace('\\', '\\\\')
+
+        # customer_org_annos =json.loads(configstr, strict=False)
+
+        configstr = json_file.read()
+        configstr = configstr[:52508429-194] + configstr[52508429+766:]
+        customer_org_annos = json.loads(configstr)
+
+        # customer_org_annos =json.load(json_file)
+
 
 
     print('processing annotation')
@@ -628,7 +672,7 @@ def aic_format_to_image_based_anno(customer_annos_path, customer_image_folder, \
         anno['id'] = idx
         anno['bbox'] = [x1, y1, x2, y2]
         anno['iscrowd'] = 0
-        if new_platform:
+        if new_platform:    # 82 platform
             # anno['category_id'] = category_id - 2080
             # pdb.set_trace()
             if tag == 'head':
@@ -637,13 +681,15 @@ def aic_format_to_image_based_anno(customer_annos_path, customer_image_folder, \
                 anno['category_id'] = 2
             else:
                 anno['category_id'] = -1
-        else:
+        else:   # 80 platform
             # anno['category_id'] = category_id - 55
             if tag == '人头':
                 anno['category_id'] = 1
             elif tag == '上半身':
+                # print(tag)
                 anno['category_id'] = 2
             else:
+                # print(tag)
                 anno['category_id'] = -1
 
             # pdb.set_trace()
@@ -767,13 +813,280 @@ def convert_txt_to_eval_form():
                 f.write(dst_txt_line)
 
 
+def read_json():
+
+    # json_dir = "/home/LiChenyang/Datasets/xi_ao/upperBody_annotation_4_82.json"
+    # json_dir = "/home/LiChenyang/Datasets/xi_ao/WFP.json"
+
+    json_dir = "D:/Dataset/xi_ao/gym_12.json"
+
+
+
+
+    with open(json_dir, 'r', encoding='UTF-8') as f:
+
+        # pdb.set_trace()
+        # configstr = f.read()
+        # configstr = configstr[:52508429] + "6:08\\" + configstr[52508429+5:]
+        # configstr = configstr[:52508429] + "6:08\\" + configstr[52508429+5:]
+        # configstr = configstr[:52508429-194] + configstr[52508429+766:]
+        # configstr = configstr[:52508429-194] + configstr[52508429+766:]
+
+        # pdb.set_trace()
+        # annos = json.loads(configstr)
+
+        annos = json.load(f)
+
+    # pdb.set_trace()
+
+    label_id_set = set()
+    cls_name_set = set()
+
+    count = 0
+
+    for anno in annos:
+
+        label_id_set.add(anno['labelId'])
+        cls_name_set.add(anno['tag'])
+
+        if anno['tag'] == "上半身":
+            count += 1
+
+
+
+    print(label_id_set)
+    print(cls_name_set)
+    print(count)
+
+
+
+def statistic_txt_file():
+
+    # txt_dir = "./data/wider_face_train.txt"
+    txt_dir = "./data_mine/upperBody_annotation_4_82/upperBody_annotation_4_82_upperbody_train.txt"
+
+    img_num = 0
+    bbox_num = 0
+
+    with open(txt_dir, 'r') as f:
+
+        lines = f.readlines()
+
+        img_num = len(lines)
+
+        for line in lines:
+            line = line.strip().split()
+            bbox_num_cur = (len(line) - 1) // 4
+            bbox_num += bbox_num_cur
+
+
+    print("Img num: {}. Bbox num: {}.".format(img_num, bbox_num))
+
+
+
+def filterCoordinate(c,m):
+    if c < 0:
+        return 0
+    elif c > m:
+        return m
+    else:
+        return c
+
+
+def convert_ellipse_to_rect():
+    """
+        将FDDB数据集的椭圆标签转换为矩形标签
+        参考repo: https://github.com/ankanbansal/fddb-for-yolo/blob/master/convertEllipseToRect.py
+    """
+
+    ellipse_filename_format = '/home/LiChenyang/Datasets/FDDB/FDDB-folds/FDDB-fold-{:0>2}-ellipseList.txt'
+    rect_filename_format = '/home/LiChenyang/Datasets/FDDB/FDDB-folds/FDDB-fold-{:0>2}-rectList.txt'
+
+    for fold_id in range(1, 11):
+
+        ellipse_filename = ellipse_filename_format.format(fold_id)
+        rect_filename = rect_filename_format.format(fold_id)
+
+        with open(ellipse_filename) as f:
+            lines = [line.rstrip('\n') for line in f]
+
+        f = open(rect_filename,'w')
+        i = 0
+        while i < len(lines):
+            img_file = '/home/LiChenyang/Datasets/FDDB/images/' + lines[i] + '.jpg'
+            img = Image.open(img_file)
+            w = img.size[0]
+            h = img.size[1]
+            num_faces = int(lines[i+1])
+            for j in range(num_faces):
+                ellipse = lines[i+2+j].split()[0:5]
+                a = float(ellipse[0])
+                b = float(ellipse[1])
+                angle = float(ellipse[2])
+                centre_x = float(ellipse[3])
+                centre_y = float(ellipse[4])
+                
+                tan_t = -(b/a)*tan(angle)
+                t = atan(tan_t)
+                x1 = centre_x + (a*cos(t)*cos(angle) - b*sin(t)*sin(angle))
+                x2 = centre_x + (a*cos(t+pi)*cos(angle) - b*sin(t+pi)*sin(angle))
+                x_max = filterCoordinate(max(x1,x2),w)
+                x_min = filterCoordinate(min(x1,x2),w)
+                
+                if tan(angle) != 0:
+                    tan_t = (b/a)*(1/tan(angle))
+                else:
+                    tan_t = (b/a)*(1/(tan(angle)+0.0001))
+                t = atan(tan_t)
+                y1 = centre_y + (b*sin(t)*cos(angle) + a*cos(t)*sin(angle))
+                y2 = centre_y + (b*sin(t+pi)*cos(angle) + a*cos(t+pi)*sin(angle))
+                y_max = filterCoordinate(max(y1,y2),h)
+                y_min = filterCoordinate(min(y1,y2),h)
+            
+                text = img_file + ',' + str(x_min) + ',' + str(y_min) + ',' + str(x_max) + ',' + str(y_max) + '\n'
+                f.write(text)
+
+            i = i + num_faces + 2
+
+        f.close()
+
+
+def fddb_label_to_mtcnn_txt_form():
+
+    src_txt_root = "/home/LiChenyang/Datasets/FDDB/FDDB-folds/"
+    dst_txt_dir = "/home/LiChenyang/Projects/tensorflow-MTCNN/data_mine/FDDB/FDDB.txt"
+    src_txt_dirs = glob(osp.join(src_txt_root, "FDDB-fold-*-rectList.txt"))
+
+    dst_dict = defaultdict(list)
+
+    for src_txt_dir in src_txt_dirs:
+
+        with open(src_txt_dir, 'r') as f_r:
+            src_lines = f_r.readlines()
+
+            for src_line in src_lines:
+
+                src_line_conts = src_line.strip().split(',')
+                relative_path = '/'.join(src_line_conts[0].split('/')[-5:])
+                # dst_line = ' '.join([relative_path] +  src_line_conts[1:]) + '\n'
+                # pdb.set_trace()
+                # print(dst_line)
+
+                dst_dict[relative_path].extend(src_line_conts[1:])
+
+    # pdb.set_trace()
+
+    with open(dst_txt_dir, 'w') as f_w:
+
+        for k in dst_dict.keys():
+
+            dst_line = ' '.join([k] + dst_dict[k]) + '\n'
+
+            f_w.write(dst_line)
+
+
+
+def vis_imgs_txt():
+
+    src_img_root = "/home/LiChenyang/Datasets/FDDB/images/"
+    dst_img_root = "./output_mine/fddb_gt_bbox"
+    txt_dir = "./data_mine/FDDB/FDDB.txt"
+    vis_num = 10
+
+    if not osp.isdir(dst_img_root):
+        os.makedirs(dst_img_root)
+
+    with open(txt_dir, 'r') as f:
+
+        lines = f.readlines()
+        random.shuffle(lines)
+
+    assert vis_num <= len(lines)
+
+    for line in lines[:vis_num]:
+
+        line_conts = line.strip().split()
+
+        src_img_dir = osp.join(src_img_root, line_conts[0])
+        dst_img_dir = osp.join(dst_img_root, osp.basename(line_conts[0]))
+        coords = [int(float(x)) for x in line_conts[1:]]
+
+        img = cv2.imread(src_img_dir)
+
+        for i in range(len(coords)//4):
+            cv2.rectangle(img, (coords[i*4], coords[i*4+1]), (coords[i*4+2], coords[i*4+3]), (0, 255, 0), 2)
+
+
+        cv2.imwrite(dst_img_dir, img)
+
+
+
+
+def read_imgs_txt():
+
+    src_img_root = "/home/LiChenyang/Datasets/xi_ao/"
+    txt_dir = "./data_mine/upperBody_annotation_4_82/upperBody_annotation_4_82_upperbody_train.txt"
+
+    jpg_num = 0
+    png_num = 0
+
+    with open(txt_dir, 'r') as f:
+
+        lines = f.readlines()
+
+    for line in lines:
+        relative_path = line.strip().split()[0]
+
+        img_dir = osp.join(src_img_root, relative_path)
+
+        if img_dir[-3:] == 'jpg':
+            jpg_num += 1
+        elif img_dir[-3:] == 'png':
+            png_num += 1
+        else:
+            raise
+
+        print(img_dir)
+        im = cv2.imread(img_dir)
+
+        # try:
+        #     im = cv2.imread(img_dir)
+        # except IOError:
+        #     print(img_dir)
+
+        # try:
+        #     img = Image.open(img_dir)
+        # except IOError:
+        #     print(img_dir)
+
+        # try:
+        #     img= np.array(img, dtype=np.float32)
+        # except :
+        #     print('corrupt img',absolute_path)
+
+    print(jpg_num, png_num)
+
+
+def read_imgs_folder():
+
+    # imgs_root = "D:/Code/python/tensorflow-MTCNN_quanzhi_8P100_v1/output_mine/upperbody_4_corrupt/"
+    imgs_root = "/home/LiChenyang/Datasets/xi_ao/corrupt_img_1/"
+
+
+    img_dirs = glob(osp.join(imgs_root, '*'))
+
+    for img_dir in img_dirs:
+
+        im = cv2.imread(img_dir)
+
+        print(img_dir, im.shape)
 
 
 
 if __name__ == '__main__':
-    # gen_origin_train_val_txt_xiao_6_scenes()
+    # gen_origin_train_val_txt_multi_scenes()
 
-    # gen_origin_txt_new_platform()
+    # gen_origin_train_val_txt_one_scene()
 
     # gen_aux_train_txt()
 
@@ -781,5 +1094,19 @@ if __name__ == '__main__':
 
     # statistic_label_file()
 
-    convert_txt_to_eval_form()
+    # convert_txt_to_eval_form()
+
+    # read_json()
+
+    # statistic_txt_file()
+
+    # convert_ellipse_to_rect()
+
+    # fddb_label_to_mtcnn_txt_form()
+
+    # vis_imgs_txt()
+
+    # read_imgs_txt()
+
+    # read_imgs_folder()
 

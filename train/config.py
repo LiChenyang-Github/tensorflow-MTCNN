@@ -5,13 +5,13 @@
 
 #是否导入预训练模型的参数
 ##################################
-# pretrained=None
+pretrained=None
 # pretrained="../model_mine/xiao-6-scenes_head_all/PNet/"
 # pretrained="../model_mine/xiao-6-scenes_head_all/P_Net_v1/"
 
 
 # pretrained="../model_mine/xiao-6-scenes_upperbody_all/PNet/"
-pretrained="../model_mine/xiao-6-scenes_upperbody_all/P_Net_v1/"
+# pretrained="../model_mine/xiao-6-scenes_upperbody_all/P_Net_v1/"
 
 
 

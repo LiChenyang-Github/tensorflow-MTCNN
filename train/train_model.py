@@ -23,7 +23,7 @@ from time import time
 
 
 def train(net_factory,prefix,end_epoch,base_dir,display,base_lr, \
-    suffix=None,pretrained=None,resume=None,size=12,net=None,exclude_vars=None):
+    suffix=None,pretrained=None,resume=None,size=12,net=None,exclude_vars=None,aspect=None):
     '''训练模型'''
     ###
     # if suffix is None:
@@ -56,7 +56,8 @@ def train(net_factory,prefix,end_epoch,base_dir,display,base_lr, \
         num = len(f.readlines())
         dataset_dir=os.path.join(base_dir,'tfrecord/train_PNet_landmark.tfrecord_shuffle')
         #从tfrecord读取数据
-        image_batch,label_batch,bbox_batch,landmark_batch=read_single_tfrecord(dataset_dir,FLAGS.batch_size,net)
+        image_batch,label_batch,bbox_batch,landmark_batch=read_single_tfrecord(dataset_dir, \
+            FLAGS.batch_size,net,aspect=aspect)
     elif net=='PNet_9' or net=='PNet_8':
         #计算一共多少组数据
         label_file=os.path.join(base_dir, '../12/', 'train_pnet_landmark.txt')
@@ -65,7 +66,8 @@ def train(net_factory,prefix,end_epoch,base_dir,display,base_lr, \
         num = len(f.readlines())
         dataset_dir=os.path.join(base_dir,'tfrecord/train_{}_landmark.tfrecord_shuffle'.format(net))
         #从tfrecord读取数据
-        image_batch,label_batch,bbox_batch,landmark_batch=read_single_tfrecord(dataset_dir,FLAGS.batch_size,net)
+        image_batch,label_batch,bbox_batch,landmark_batch=read_single_tfrecord(dataset_dir, \
+            FLAGS.batch_size,net,aspect=aspect)
     else:
         #计算一共多少组数据
         label_file1=os.path.join(base_dir,'pos_%d.txt'%(size))
@@ -107,10 +109,20 @@ def train(net_factory,prefix,end_epoch,base_dir,display,base_lr, \
         # image_batch, label_batch, bbox_batch,landmark_batch = read_multi_tfrecords(dataset_dirs,batch_sizes, net)  
         image_batch, label_batch, bbox_batch,landmark_batch = read_multi_tfrecords_xiao(dataset_dirs,batch_sizes, net)  
 
-    input_image=tf.placeholder(tf.float32,shape=[FLAGS.batch_size,size,size,3],name='input_image')
+    # pdb.set_trace()
+
+    if aspect is None:
+        input_image=tf.placeholder(tf.float32,shape=[FLAGS.batch_size,size,size,3],name='input_image')
+    else:
+        assert len(aspect) == 2
+        input_image=tf.placeholder(tf.float32,shape=[FLAGS.batch_size,aspect[0],aspect[1],3],name='input_image')
+
     label=tf.placeholder(tf.float32,shape=[FLAGS.batch_size],name='label')
     bbox_target=tf.placeholder(tf.float32,shape=[FLAGS.batch_size,4],name='bbox_target')
     # landmark_target=tf.placeholder(tf.float32,shape=[FLAGS.batch_size,10],name='landmark_target')
+
+    # pdb.set_trace()
+
     #图像色相变换
     input_image=image_color_distort(input_image)
     # cls_loss_op,bbox_loss_op,landmark_loss_op,L2_loss_op,accuracy_op=net_factory(input_image,
@@ -1046,8 +1058,12 @@ def optimize(base_lr,loss,data_num):
 # In[2]:
 
 
-def read_single_tfrecord(tfrecord_file,batch_size,net, is_upperbody=False):
-    '''读取tfrecord数据，如果is_upperbody为真，则需要对label进行修改（1->2, -1->-2）'''
+def read_single_tfrecord(tfrecord_file,batch_size,net, is_upperbody=False, aspect=None):
+    '''
+        读取tfrecord数据，如果is_upperbody为真(仅在训练2 class MTCNN的时候才需要使用)，
+        需要对label进行修改（1->2, -1->-2）
+
+    '''
     filename_queue=tf.train.string_input_producer([tfrecord_file],shuffle=True)
     reader=tf.TFRecordReader()
     _,serialized_example=reader.read(filename_queue)
@@ -1071,7 +1087,16 @@ def read_single_tfrecord(tfrecord_file,batch_size,net, is_upperbody=False):
     elif net=='ONet' or 'O_Net' in net:
         image_size=48
     image=tf.decode_raw(image_features['image/encoded'],tf.uint8)
-    image=tf.reshape(image,[image_size,image_size,3])
+
+    # pdb.set_trace()
+    if aspect is None:
+        image=tf.reshape(image,[image_size,image_size,3])
+    else:
+        # pdb.set_trace()
+        image=tf.reshape(image,[aspect[0],aspect[1],3])
+    # pdb.set_trace()
+
+
     #将值规划在[-1,1]内
     image=(tf.cast(image,tf.float32)-127.5)/128
     

@@ -5,6 +5,7 @@
 
 
 import sys
+sys.path.insert(0, '../')
 from detection.MtcnnDetector import MtcnnDetector
 from detection.detector import Detector
 from detection.fcn_detector import FcnDetector

@@ -199,6 +199,7 @@ def _add_to_tfrecord(filename, image_example, tfrecord_writer, size=None):
       tfrecord_writer:写入文件
     '''
     image_data, height, width = _process_image_withoutcoder(filename, size)
+    # pdb.set_trace()
     example = _convert_to_example_simple(image_example, image_data)
     tfrecord_writer.write(example.SerializeToString())
 
@@ -255,7 +256,7 @@ def _convert_to_example_simple(image_example, image_buffer):
     landmark = [bbox['xlefteye'],bbox['ylefteye'],bbox['xrighteye'],bbox['yrighteye'],bbox['xnose'],bbox['ynose'],
                 bbox['xleftmouth'],bbox['yleftmouth'],bbox['xrightmouth'],bbox['yrightmouth']]
                 
-      
+
     example = tf.train.Example(features=tf.train.Features(feature={
         'image/encoded': _bytes_feature(image_buffer),
         'image/label': _int64_feature(class_label),

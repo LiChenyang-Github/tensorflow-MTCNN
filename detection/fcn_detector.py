@@ -42,6 +42,3 @@ class FcnDetector:
                                                   self.height_op:height})
         
         return cls_prob,bbox_pred
-
-        
-

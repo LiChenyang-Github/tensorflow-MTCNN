@@ -292,6 +292,8 @@ class MtcnnDetector:
             #将pnet生成的box相对与原图进行裁剪，超出部分用0补
             # if tmph[i]<20 or tmpw[i]<20:
             #     continue
+            if tmph[i]<5 or tmpw[i]<5:
+                continue
 
             tmp = np.zeros((tmph[i], tmpw[i], 3), dtype=np.uint8)
             tmp[dy[i]:edy[i] + 1, dx[i]:edx[i] + 1, :] = im[y[i]:ey[i] + 1, x[i]:ex[i] + 1, :]  ### 这里就是将超出图片边界的部分做0-padding

@@ -33,4 +33,13 @@
 #     --anno_file ../data_mine/auxiliary/xiao_gym_subway_upperbody.txt \
 #     --im_root /disk3/hjy/work/data/aic_upper_head/
 
+### wider face
+# python gen_12net_data.py --suffix wider_face_mine \
+#     --anno_file ../data/wider_face_train.txt \
+#     --im_root ../data/WIDER_train/images/ \
+#     --add_img_suffix
 
+### upperBody_annotation_4_82
+python gen_12net_data.py --suffix upperBody_annotation_4_82_upperbody_all \
+    --anno_file ../data_mine/upperBody_annotation_4_82/upperBody_annotation_4_82_upperbody_train.txt \
+    --im_root /home/LiChenyang/Datasets/xi_ao/ 

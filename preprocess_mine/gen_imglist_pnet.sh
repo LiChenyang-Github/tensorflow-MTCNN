@@ -1,2 +1,2 @@
 
-python gen_imglist_pnet.py --suffix xiao_gym_subway_upperbody_all
+python gen_imglist_pnet.py --suffix upperBody_annotation_4_82_upperbody_all_aspect-24-12
