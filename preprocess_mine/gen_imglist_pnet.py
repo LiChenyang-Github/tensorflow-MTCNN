@@ -18,6 +18,8 @@ def main(args):
 
     suffix = args.suffix
     data_dir = args.data_dir
+    base_num = args.base_num
+
 
 
     '''将pos,part,neg,landmark四者混在一起'''
@@ -50,7 +52,7 @@ def main(args):
         os.makedirs(dir_path)
     with open(os.path.join(dir_path,'train_pnet_landmark.txt'),'w') as f:
         nums=[len(neg),len(pos),len(part)]
-        base_num=250000
+        # base_num=250000
         print('neg数量：{} pos数量：{} part数量:{} 基数:{}'.format(len(neg),len(pos),len(part),base_num))
         if len(neg)>base_num*3:
             neg_keep=npr.choice(len(neg),size=base_num*3,replace=True)
@@ -80,6 +82,9 @@ def parse_arguments(argv):
 
     parser.add_argument('--data_dir', type=str, default='../data_mine/',
                         help='The root of data.')
+
+    parser.add_argument('--base_num', type=int, default=250000,
+                        help='The base number of data.')
 
     return parser.parse_args(argv)
 

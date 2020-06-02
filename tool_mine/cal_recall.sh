@@ -1,5 +1,5 @@
 
-GPU_IDS=2
+GPU_IDS=3
 INPUT_SIZE=12
 
 ### xiao 6 scenes head/upperbody all
@@ -47,3 +47,13 @@ INPUT_SIZE=12
 #     --filename ../data_mine/upperBody_annotation_4_82/upperBody_annotation_4_82_upperbody_train.txt \
 #     --base_dir /home/LiChenyang/Datasets/xi_ao/ \
 #     --img_num 5000 
+
+
+### uppperbody_4 aspect-24-12
+CUDA_VISIBLE_DEVICES=${GPU_IDS} python cal_recall.py ${INPUT_SIZE} \
+    --suffix upperBody_annotation_4_82_upperbody_all_aspect-24-12 \
+    --filename ../data_mine/upperBody_annotation_4_82/upperBody_annotation_4_82_upperbody_train.txt \
+    --base_dir /home/LiChenyang/Datasets/xi_ao/ \
+    --net_name P_Net_aspect_24_12 \
+    --aspect 24 12 \
+    --img_num 5000 

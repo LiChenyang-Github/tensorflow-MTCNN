@@ -62,7 +62,8 @@ class MtcnnDetector:
                 scale_factor=0.79,#图像金字塔的缩小率
                 pnet_size=12,
                 sliding_win=False,
-                win_size=(300,300)):
+                win_size=(300,300),
+                aspect=None):
         self.pnet_detector=detectors[0]
         self.rnet_detector=detectors[1]
         self.onet_detector=detectors[2]
@@ -75,6 +76,8 @@ class MtcnnDetector:
         self.pnet_size = pnet_size
         self.sliding_win = sliding_win
         self.win_size = win_size
+        self.aspect = aspect
+
 
         # pdb.set_trace()
 
@@ -173,7 +176,13 @@ class MtcnnDetector:
         h,w,c=im.shape
 
         # net_size=12
-        net_size = self.pnet_size
+        if self.aspect is None:
+            net_size = self.pnet_size
+            net_size_max = self.pnet_size
+        else:
+            net_size = self.pnet_size
+            net_size_max = np.max(self.aspect)
+
 
         # pdb.set_trace()
 
@@ -183,7 +192,7 @@ class MtcnnDetector:
         current_height,current_width,_=im_resized.shape
         all_boxes=list()
         #图像金字塔
-        while min(current_height,current_width)>net_size:
+        while min(current_height,current_width)>net_size_max:
 
             # pdb.set_trace()
 
@@ -396,7 +405,15 @@ class MtcnnDetector:
         
         ### 这里的cellsize其实就是PNet的感受野
         # cellsize = 12
-        cellsize = self.pnet_size
+
+        if self.aspect is None:
+            cellsize_w = self.pnet_size
+            cellsize_h = self.pnet_size
+        else:
+            cellsize_w = self.aspect[1]
+            cellsize_h = self.aspect[0]
+
+        # pdb.set_trace()
 
 
         #将置信度高的留下
@@ -413,8 +430,8 @@ class MtcnnDetector:
         #对应原图的box坐标，分类分数，box偏移量
         boundingbox = np.vstack([np.round((stride * t_index[1]) / scale),
                                  np.round((stride * t_index[0]) / scale),
-                                 np.round((stride * t_index[1] + cellsize) / scale),
-                                 np.round((stride * t_index[0] + cellsize) / scale),
+                                 np.round((stride * t_index[1] + cellsize_w) / scale),
+                                 np.round((stride * t_index[0] + cellsize_h) / scale),
                                  score,
                                  reg])
         #shape[n,9]

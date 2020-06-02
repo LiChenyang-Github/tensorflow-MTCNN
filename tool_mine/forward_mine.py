@@ -8,7 +8,8 @@ sys.path.insert(0, '../')
 from detection.MtcnnDetector import MtcnnDetector
 from detection.detector import Detector
 from detection.fcn_detector import FcnDetector
-from train.model import P_Net,R_Net,O_Net,P_Net_v1,R_Net_v1,R_Net_fcn,R_Net_fcn_v1,O_Net_v1,O_Net_fcn_v1
+from train.model import P_Net,R_Net,O_Net,P_Net_v1,R_Net_v1,R_Net_fcn,R_Net_fcn_v1,O_Net_v1,O_Net_fcn_v1, \
+    P_Net_aspect_24_12
 import cv2
 import os
 import numpy as np
@@ -78,6 +79,7 @@ win_size=config.win_size
 batch_size=config.batches
 net_name=config.net_name
 img_num=config.img_num
+aspect=config.aspect
 
 # 确保resize_input和sliding_win至多只能有一个为True
 assert not (resize_input and sliding_win)
@@ -137,8 +139,8 @@ detectors[0]=PNet
 
 
 mtcnn_detector = MtcnnDetector(detectors=detectors, min_face_size=min_face_size,
-                               stride=stride, threshold=thresh,
-                               sliding_win=sliding_win, win_size=win_size)
+                               stride=stride, threshold=thresh, sliding_win=sliding_win, \
+                               win_size=win_size, aspect=aspect)
 
 if net_name is None:
     out_path=osp.join(config.out_path, test_mode) if suffix is None else \

@@ -33,6 +33,8 @@ def main(args):
     crop_height = args.crop_height
     aspect_ratio = crop_height / crop_width
 
+    # pdb.set_trace()
+
 
     if suffix is None:
         pos_save_dir='../data_mine/12/positive'
@@ -93,7 +95,9 @@ def main(args):
         
         neg_num=0
         #先采样一定数量neg图片
-        while neg_num<50:
+        # while neg_num<50:
+        while neg_num<200:
+
 
             #随机选取截取图像大小
             # size=npr.randint(12,min(width,height)/2)
@@ -140,7 +144,8 @@ def main(args):
             #舍去图像过小和box在图片外的图像
             if max(w,h)<20 or x1<0 or y1<0:
                 continue
-            for i in range(5):
+            # for i in range(5):
+            for i in range(20):
                 # size=npr.randint(12,min(width,height)/2)
                 size_w = npr.randint(12,min(width,height)/2)
                 size_h = int(size_w * aspect_ratio)

@@ -1,5 +1,5 @@
 
-GPU_IDS=1
+GPU_IDS=3
 INPUT_SIZE=24
 
 ### xiao 6 scenes head/upperbody all
@@ -23,3 +23,22 @@ INPUT_SIZE=24
 #     --suffix upperBody_annotation_4_82_upperbody_all \
 #     --filename ../data_mine/upperBody_annotation_4_82/upperBody_annotation_4_82_upperbody_train.txt \
 #     --base_dir /home/LiChenyang/Datasets/xi_ao/
+
+
+### upperbody_4 aspect-24-12
+### 产生RNet和ONet的输入hard examples的时候都需要设置--aspect参数，generate_bbox中的cellsize需要根据此来设置
+### 目前版本对crop的图片resize到(save_size, save_size)的尺寸，并不是aspect的尺寸
+CUDA_VISIBLE_DEVICES=${GPU_IDS} python gen_hard_example.py ${INPUT_SIZE} \
+    --suffix upperBody_annotation_4_82_upperbody_all_aspect-24-12 \
+    --filename ../data_mine/upperBody_annotation_4_82/upperBody_annotation_4_82_upperbody_train.txt \
+    --base_dir /home/LiChenyang/Datasets/xi_ao/ \
+    --net_name P_Net_aspect_24_12 R_Net_aspect_24_12 \
+    --aspect 24 12
+
+### upperbody_4 aspect-18-12
+# CUDA_VISIBLE_DEVICES=${GPU_IDS} python gen_hard_example.py ${INPUT_SIZE} \
+#     --suffix upperBody_annotation_4_82_upperbody_all_aspect-18-12 \
+#     --filename ../data_mine/upperBody_annotation_4_82/upperBody_annotation_4_82_upperbody_train.txt \
+#     --base_dir /home/LiChenyang/Datasets/xi_ao/ \
+#     --net_name P_Net_aspect_18_12 \
+#     --aspect 18 12

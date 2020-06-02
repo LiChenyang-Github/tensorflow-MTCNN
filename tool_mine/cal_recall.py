@@ -17,7 +17,7 @@ from tqdm import tqdm
 from loader import TestLoader
 sys.path.insert(0, '../')
 from train.model import P_Net,R_Net,O_Net,P_Net_v1,R_Net_v1,R_Net_fcn,R_Net_fcn_v1
-from train.model import P_Net_org,R_Net_org
+from train.model import P_Net_org,R_Net_org,P_Net_aspect_24_12
 import train.config_cal_recall as config
 from detection.detector import Detector
 from detection.fcn_detector import FcnDetector
@@ -41,6 +41,7 @@ def main(args):
     thred_stride=args.thred_stride
     img_num=args.img_num
     add_img_suffix=args.add_img_suffix
+    aspect=args.aspect
 
     # pdb.set_trace()
 
@@ -102,7 +103,7 @@ def main(args):
     # pdb.set_trace()
 
     mtcnn_detector=MtcnnDetector(detectors,min_face_size=min_face_size,
-                                stride=stride,threshold=thresh)
+                                stride=stride,threshold=thresh,aspect=aspect)
     # save_path=data_dir
     # save_file=os.path.join(save_path,'detections.pkl')
     save_path = osp.join(
@@ -278,6 +279,9 @@ def parse_arguments(argv):
 
     parser.add_argument('--add_img_suffix', action='store_true', default=False, 
                         help='The input size for specific net')
+
+    parser.add_argument('--aspect', nargs='+', type=int, default=None,
+                        help='Specify the (height, width) when the input is not square.')
 
     return parser.parse_args(argv)
 

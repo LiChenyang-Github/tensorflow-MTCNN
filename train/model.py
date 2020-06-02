@@ -805,6 +805,46 @@ def P_Net_aspect_24_12(inputs,label=None,bbox_target=None,landmark_target=None,t
                 return cls_pro_test,bbox_pred_test,None
 
 
+def P_Net_aspect_18_12(inputs,label=None,bbox_target=None,landmark_target=None,training=True):
+    '''
+        感受野为18*12的PNet：
+        1. conv2的卷积核改为[5,3]
+        2. 增加一个conv4，卷积核大小为[2,1]
+
+    '''
+    with tf.variable_scope('PNet'):
+        with slim.arg_scope([slim.conv2d],activation_fn=prelu,
+                           weights_initializer=slim.xavier_initializer(),
+                           weights_regularizer=slim.l2_regularizer(0.0005),
+                           padding='VALID'):
+            print(inputs.shape)
+            net=slim.conv2d(inputs,10,3,scope='conv1')
+            net=slim.max_pool2d(net,kernel_size=[2,2],stride=2,padding='SAME',scope='pool1')
+            net=slim.conv2d(net,16,[5,3],scope='conv2')
+            net=slim.conv2d(net,32,3,scope='conv3')
+            net=slim.conv2d(net,32,[2,1],scope='conv4')
+
+            #二分类输出通道数为2
+            conv5_1=slim.conv2d(net,2,1,activation_fn=tf.nn.softmax,scope='conv5_1')
+            bbox_pred=slim.conv2d(net,4,1,activation_fn=None,scope='conv5_2')
+            
+            if training:
+                cls_prob=tf.squeeze(conv5_1,[1,2],name='cls_prob')#[batch,2]
+                cls_loss=cls_ohem(cls_prob,label)
+                
+                bbox_pred=tf.squeeze(bbox_pred,[1,2],name='bbox_pred')#[bacth,4]
+                bbox_loss=bbox_ohem(bbox_pred,bbox_target,label)
+                
+                accuracy=cal_accuracy(cls_prob,label)
+                L2_loss=tf.add_n(slim.losses.get_regularization_losses())
+                return cls_loss,bbox_loss,L2_loss,accuracy
+
+            else:
+                #测试时batch_size=1
+                cls_pro_test=tf.squeeze(conv5_1,axis=0)
+                bbox_pred_test=tf.squeeze(bbox_pred,axis=0)
+                return cls_pro_test,bbox_pred_test,None
+
 
 def prelu(inputs):
     '''prelu函数定义'''

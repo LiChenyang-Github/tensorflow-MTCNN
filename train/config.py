@@ -31,18 +31,29 @@ resume=None
 
 
 #迭代次数
-end_epoch=[30,22,22]
+# end_epoch=[30,22,22]
+end_epoch=[105,22,22]    # lrx100, ICC-CNN-like
+
 #经过多少batch显示数据
 display=100
 #初始学习率
-lr=0.001
+# lr=0.001
+lr=0.01  # lrx100, ICC-CNN-like
 
-batch_size=384
+# lr_factor=0.1
+lr_factor=0.5 # lrx100, ICC-CNN-like
+
+
+# batch_size=384
+batch_size=6000 # lrx100, ICC-CNN-like
+
 ###
 # batch_size=2048
 
 #学习率减少的迭代次数
-LR_EPOCH=[6,14,20]
+# LR_EPOCH=[6,14,20]
+LR_EPOCH=[30,60,90] # lrx100, ICC-CNN-like
+
 #最小脸大小设定
 min_face=20
 # min_face=12

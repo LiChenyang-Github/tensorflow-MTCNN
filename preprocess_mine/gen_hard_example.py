@@ -15,7 +15,11 @@ import cv2
 from tqdm import tqdm
 from loader import TestLoader
 sys.path.append('../')
-from train.model import P_Net,R_Net,O_Net,P_Net_v1,R_Net_v1,R_Net_fcn,R_Net_fcn_v1
+from train.model import P_Net,R_Net,O_Net,P_Net_v1,R_Net_v1,R_Net_fcn,R_Net_fcn_v1, \
+    P_Net_aspect_24_12, P_Net_aspect_18_12
+
+R_Net_aspect_24_12 = R_Net
+
 import train.config as config
 from detection.detector import Detector
 from detection.fcn_detector import FcnDetector
@@ -37,6 +41,7 @@ def main(args):
     base_dir=args.base_dir
     net_name=args.net_name
     add_img_suffix=args.add_img_suffix
+    aspect=args.aspect
 
     # pdb.set_trace()
 
@@ -117,7 +122,7 @@ def main(args):
 
 
     mtcnn_detector=MtcnnDetector(detectors,min_face_size=min_face_size,
-                                stride=stride,threshold=thresh)
+                                stride=stride,threshold=thresh,aspect=aspect)
     save_path=data_dir
     save_file=os.path.join(save_path,'detections.pkl')
     if not os.path.exists(save_file):
@@ -258,6 +263,9 @@ def parse_arguments(argv):
 
     parser.add_argument('--add_img_suffix', action='store_true', default=False, 
                         help='The input size for specific net')
+
+    parser.add_argument('--aspect', nargs='+', type=int, default=None,
+                        help='Specify the (height, width) when the input is not square.')
 
 
     return parser.parse_args(argv)

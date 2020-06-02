@@ -173,11 +173,11 @@ def gen_origin_train_val_txt_one_scene():
 
 
 
-    # anno_file_list = ['/disk5/lichenyang/Datasets_backup/fenglian/W9Frap.json', ]
-    # image_folder_list = ['/disk5/lichenyang/Datasets_backup/fenglian/W9Frap', ]
+    anno_file_list = ['/disk5/lichenyang/Datasets_backup/xiao/upperBody_annotation_4_82.json', ]
+    image_folder_list = ['/disk5/lichenyang/Datasets_backup/xiao/upperBody_annotation_4_82', ]
 
-    anno_file_list = ['/home/LiChenyang/Datasets/xi_ao/upperBody_annotation_4_82.json', ]
-    image_folder_list = ['/home/LiChenyang/Datasets/xi_ao/upperBody_annotation_4_82', ]
+    # anno_file_list = ['/home/LiChenyang/Datasets/xi_ao/upperBody_annotation_4_82.json', ]
+    # image_folder_list = ['/home/LiChenyang/Datasets/xi_ao/upperBody_annotation_4_82', ]
 
     train_all_images = []
     train_all_annos = []
@@ -311,7 +311,6 @@ def gen_aux_train_txt():
                     # '/disk3/hjy/work/data/aic_upper_head/gym_12.json',
                     # '/disk3/hjy/work/data/aic_upper_head/subway.json',
                     # '/disk5/lichenyang/Datasets_backup/fenglian/IUG3Ln.json',
-                    
                     ]
 
     image_folder_list = [
@@ -1083,6 +1082,106 @@ def read_imgs_folder():
 
 
 
+def load_odgt(file_dir):
+
+    # file_dir = "D:/BaiduNetdiskDownload/annotation_train.odgt"
+    annos_dict = {}
+
+    with open(file_dir, 'r') as f:
+        lines = f.readlines()
+
+    for line in lines:
+
+        line_json = json.loads(line.strip())
+
+        annos_dict[line_json['ID']] = line_json
+
+    # pdb.set_trace()
+
+    # print(annos_dict["273271,c9db000d5146c15"], len(annos_dict))
+
+    return annos_dict
+
+
+def crowdhuman_draw(img, anno_dict):
+
+    gt_boxes = anno_dict['gtboxes']
+
+    for instance in gt_boxes:
+
+        hbox = instance['hbox']
+        vbox = instance['vbox']
+        fbox = instance['fbox']
+
+
+        if instance['tag'] == 'mask':
+            cv2.rectangle(img, (hbox[0], hbox[1]), (hbox[0]+hbox[2], hbox[1]+hbox[3]), (0, 0, 0), 1)
+        elif instance['tag'] == 'person':
+            if instance['head_attr']['ignore'] == 1 or instance['head_attr']['occ'] == 1:
+                cv2.rectangle(img, (hbox[0], hbox[1]), (hbox[0]+hbox[2], hbox[1]+hbox[3]), (0, 255, 255), 1)
+            else:
+                cv2.rectangle(img, (hbox[0], hbox[1]), (hbox[0]+hbox[2], hbox[1]+hbox[3]), (255, 0, 0), 1)
+            cv2.rectangle(img, (vbox[0], vbox[1]), (vbox[0]+vbox[2], vbox[1]+vbox[3]), (0, 255, 0), 1)
+            cv2.rectangle(img, (fbox[0], fbox[1]), (fbox[0]+fbox[2], fbox[1]+fbox[3]), (0, 0, 255), 1)
+            cv2.putText(img, '{}'.format(instance['extra']['box_id']), (hbox[0], hbox[1]-2), 
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (125, 0, 0), 1)
+        else:
+            raise
+
+    return img
+
+
+def vis_crowdhuman():
+
+    img_root = "D:/BaiduNetdiskDownload/"
+    odgt_dir = "D:/BaiduNetdiskDownload/annotation_train.odgt"
+    # img_id = "273275,cd061000af95f691"
+    # img_id = "273275,59b50000f22dfcf2"
+    # img_id = "273278,cac480005a9d945f"
+
+    # ig 1, occ 1   为比较严重的遮挡，可以忽略的
+    # img_id = "273275,13ad450003c347e49"
+    # img_id = "273275,ab13900012ddf050"
+
+    # ig 0, occ 1   不是很严重的遮挡 (但是有一些感觉也挺严重的)，身体部分可见，可有一些可能是侧脸或者背面 
+    # img_id = "273275,13ad450003c347e49"
+    # img_id = "273275,ab13900012ddf050"
+
+    # ig 1, occ 0 
+    # img_id = "273278,cfab500071258472"
+    # img_id = "282555,ebde6000591f3995"
+
+
+
+
+    img_dirs = glob(osp.join(img_root, '*', '*', '{}.*'.format(img_id)))
+
+    if len(img_dirs) != 1:
+        return
+    else:
+        img_dir = img_dirs[0]
+
+    # print(img_dir)
+
+    annos = load_odgt(odgt_dir)
+
+
+    img = cv2.imread(img_dir)
+    img_src = img.copy()
+
+
+    img = crowdhuman_draw(img, annos[img_id])
+
+    cv2.imshow("src", img_src)
+    cv2.imshow("vis", img)
+
+    cv2.waitKey()
+
+
+
+
+
+
 if __name__ == '__main__':
     # gen_origin_train_val_txt_multi_scenes()
 
@@ -1109,4 +1208,8 @@ if __name__ == '__main__':
     # read_imgs_txt()
 
     # read_imgs_folder()
+
+    # load_odgt()
+
+    vis_crowdhuman()
 

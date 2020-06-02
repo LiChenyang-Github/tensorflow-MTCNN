@@ -1045,7 +1045,9 @@ def train_2cls_multi_tfrecords(net_factory,prefix,end_epoch,base_dir_list,displa
 
 def optimize(base_lr,loss,data_num):
     '''参数优化'''
-    lr_factor=0.1
+    # lr_factor=0.1
+    lr_factor=FLAGS.lr_factor
+
     global_step = tf.Variable(0, trainable=False)
     boundaries = [int(epoch * data_num / FLAGS.batch_size) for epoch in FLAGS.LR_EPOCH]
     lr_values = [base_lr * (lr_factor ** x) for x in range(0, len(FLAGS.LR_EPOCH) + 1)]

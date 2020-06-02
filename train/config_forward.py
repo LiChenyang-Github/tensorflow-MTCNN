@@ -3,34 +3,45 @@
 
 #测试图片的根目录
 ##################
-img_root='/home/LiChenyang/Projects/tensorflow-MTCNN/picture/'
+# img_root='/home/LiChenyang/Projects/tensorflow-MTCNN/picture/'
+img_root='/home/LiChenyang/Datasets/xi_ao/'
+
 
 #测试图片标签放置位置，如果test_dir为None，就直接对img_root下面的图片进行forward
 ##################
-test_dir = None
-# test_dir='data/xiao_head_val.txt'
+# test_dir = None
+test_dir='../data_mine/upperBody_annotation_4_82/upperBody_annotation_4_82_upperbody_val.txt'
 
 #保存结果的路径
 ##################
-out_path='../output_mine/wider_face_mine_test'
+out_path='../output_mine/upperbody_4_MTCNN-125wx6-lrx100_aspect-24-12-PNet_val/'
 
 #图片的数量
 ##################
-img_num=None
+img_num=200
 
 #模型的后缀名称
 ##################
-# suffix=None
-suffix='wider_face_mine'
+suffix=None
+# suffix='wider_face_mine'
+# suffix='upperBody_annotation_4_82_upperbody_all'
+
 
 ##################
-model_path=None
-# model_path=['../model/PNet/','../model/RNet/','../model/ONet/']
+# model_path=None
+model_path=[
+            '../model_mine/upperBody_annotation_4_82-125wx6-lrx100_upperbody_all_aspect-24-12/P_Net_aspect_24_12/', \
+            '../model_mine/upperBody_annotation_4_82_upperbody_all/RNet/', \
+            '../model_mine/upperBody_annotation_4_82_upperbody_all/ONet/'
+            ]
 
 ##################
-net_name=None
-# net_name=[]
+# net_name=None
+net_name=['P_Net_aspect_24_12','R_Net','O_Net']
 
+##################
+# aspect=None
+aspect=[24,12]
 
 
 

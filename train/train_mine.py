@@ -6,7 +6,11 @@
 
 from model import P_Net,R_Net,O_Net, P_Net_9, P_Net_8, \
     R_Net_conv3, O_Net_conv3, P_Net_v1, R_Net_v1, O_Net_v1, R_Net_fcn, R_Net_fcn_v1, O_Net_fcn_v1, \
-    P_Net_aspect_24_12
+    P_Net_aspect_24_12, P_Net_aspect_18_12
+
+R_Net_aspect_24_12 = R_Net
+O_Net_aspect_24_12 = O_Net
+
 import argparse
 import os
 import sys
